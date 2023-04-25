@@ -23,10 +23,9 @@ public class test_client1 {
                     System.out.println(response);
                 }
             }).start();
+//            init(input, out);
             String sender = input.next();
             out.println(sender);
-
-
             while (true) {
                 String type = input.next();
                 String receiver = input.next();
@@ -40,5 +39,9 @@ public class test_client1 {
             }
 
         }
+    }
+    public static synchronized void init(Scanner input, PrintWriter out) {
+        String sender = input.next();
+        out.println(sender);
     }
 }

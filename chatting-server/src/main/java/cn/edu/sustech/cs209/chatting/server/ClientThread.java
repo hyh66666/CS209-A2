@@ -49,7 +49,7 @@ public class ClientThread implements Runnable {
             String line, command = null, recipient = null;
 
             while (username == null) {
-                out.println("Enter your name:");
+//                out.println("Enter your name:");
                 username = in.readLine();
                 if (!server.userValid(username)) {
                     username = null;
@@ -81,6 +81,10 @@ public class ClientThread implements Runnable {
                 } else {
                     // private
                     switch (command) {
+                        // getUsers
+                        case "getUsers":
+                            server.getUsers(this);
+                            break;
                         // broadcast
                         case "broadcast":
                             server.broadcast(line, this);
@@ -93,7 +97,25 @@ public class ClientThread implements Runnable {
                         case "create":
                             // recipient is group_name
                             String member = line+","+username;
-                            server.creatGroup(recipient, member);
+                            server.creatGroup(recipient, member, this);
+                            break;
+                        // join group
+                        case "join":
+                            // recipient is group_name
+                            if (server.joinGroup(recipient, this)) {
+                                out.println(username+" join the group " +recipient + "!");
+                            } else {
+                                out.println("Group " +recipient + " is not exist!");
+                            }
+                            break;
+                        // exit group
+                        case "exit":
+                            // recipient is group_name
+                            if (server.exitGroup(recipient, this)) {
+                                out.println("Exit the group " +recipient + "!");
+                            } else {
+                                out.println("You're not in the group "+ recipient);
+                            }
                             break;
                         // groupChat
                         case "groupChat":
@@ -121,11 +143,10 @@ public class ClientThread implements Runnable {
                     }
                 }
                 i++;
-                if (i > 1) {
-                    i = 0;
+                if (i > 1){
+                    i=0;
                 }
             }
-
         } catch (IOException ex) {
             server.removeClient(this);
             try {

@@ -2,7 +2,7 @@ package cn.edu.sustech.cs209.chatting.common;
 
 public class Message {
 
-    private Long timestamp;
+    private Long timestamp = 1L;
 
     private String sentBy;
 
@@ -10,8 +10,8 @@ public class Message {
 
     private String data;
 
-    public Message(Long timestamp, String sentBy, String sendTo, String data) {
-        this.timestamp = timestamp;
+    public Message( String sentBy, String sendTo, String data) {
+//        this.timestamp = timestamp;
         this.sentBy = sentBy;
         this.sendTo = sendTo;
         this.data = data;

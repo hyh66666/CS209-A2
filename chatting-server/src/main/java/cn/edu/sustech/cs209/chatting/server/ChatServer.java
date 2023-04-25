@@ -51,43 +51,81 @@ public class ChatServer {
         }
     }
 
+    public synchronized  void getUsers(ClientThread user) {
+        StringBuilder sb = new StringBuilder();
+        for (ClientThread client : clients) {
+                sb.append(client.getUsername());
+                sb.append(",");
+        }
+        String result = sb.toString();
+        result = result.substring(0,result.length()-1);
+        user.sendMessage(result);
+    }
+
 
     public synchronized void sendPrivateMessage(String message, ClientThread sender, String recipient) throws IOException {
         for (ClientThread client : clients) {
             if (client.getUsername().equals(recipient)) {
                 client.sendMessage("From " + sender.getUsername() + ": " + message);
+//                client.sendMessage(message);
                 return;
             }
         }
         sender.sendMessage("User " + recipient + " not found");
     }
 
-    public synchronized void creatGroup(String name, String members) {
+    public synchronized void creatGroup(String name, String members, ClientThread clientThread) {
         String[] strings = members.split(",");
         List<ClientThread> tempList = new ArrayList<>();
         for (String string : strings) {
             for (ClientThread client : clients) {
                 if (client.getUsername().equals(string)) {
                     tempList.add(client);
-                    client.getGroup().add(name);
                 }
             }
         }
-        groupMap.put(name, tempList);
-        System.out.println("group created!");
-    }
-
-    public synchronized void sendGroupMessage(String message, String name, ClientThread sender) throws IOException {
-        for (ClientThread client : groupMap.get(name)) {
-            if (client != sender) {
-                client.sendMessage("From [" + name + "] " + sender.getUsername() + ": " + message);
+        if (tempList.size() != strings.length){
+            clientThread.sendMessage("The inviting user has the wrong name!");
+        } else {
+            for (ClientThread thread : tempList) {
+                thread.getGroup().add(name);
             }
+            groupMap.put(name, tempList);
+            System.out.println("group created!");
         }
     }
 
-    public synchronized void listGroup(ClientThread client) {
-        client.getOut().println(Arrays.toString(client.getGroup().toArray()));
-        client.getOut().flush();
+    public synchronized boolean joinGroup(String name, ClientThread client) {
+        boolean flag = false;
+        if (groupMap.containsKey(name)){
+            groupMap.get(name).add(client);
+            client.getGroup().add(name);
+            flag = true;
+        }
+        return flag;
+    }
+
+    public synchronized boolean exitGroup(String name, ClientThread client) {
+        boolean flag = false;
+        if (client.getGroup().contains(name)) {
+            client.getGroup().remove(name);
+            groupMap.get(name).remove(client);
+            flag = true;
+        }
+        return flag;
+    }
+
+    public synchronized void sendGroupMessage(String message, String name, ClientThread sender) throws IOException {
+        if (!groupMap.containsKey(name)){
+            sender.sendMessage("You're not in the group "+name);
+        }
+        else {
+            for (ClientThread client : groupMap.get(name)) {
+                if (client != sender) {
+                    client.sendMessage("From [" + name + "] " + sender.getUsername() + ": " + message);
+                }
+            }
+        }
     }
 
     public synchronized void removeClient(ClientThread clientThread) {
