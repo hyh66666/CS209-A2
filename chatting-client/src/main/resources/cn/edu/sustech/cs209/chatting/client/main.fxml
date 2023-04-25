@@ -21,6 +21,7 @@
         <Menu mnemonicParsing="false" text="Chat">
             <MenuItem mnemonicParsing="false" onAction="#createPrivateChat" text="New Private Chat"/>
             <MenuItem mnemonicParsing="false" onAction="#createGroupChat" text="New Group Chat"/>
+            <MenuItem mnemonicParsing="false" onAction="#selectGroupChat" text="Select Group Chat"/>
         </Menu>
     </MenuBar>
     <SplitPane dividerPositions="0.25" focusTraversable="true" VBox.vgrow="ALWAYS">

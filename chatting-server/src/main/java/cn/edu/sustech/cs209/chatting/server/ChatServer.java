@@ -89,6 +89,10 @@ public class ChatServer {
         } else {
             for (ClientThread thread : tempList) {
                 thread.getGroup().add(name);
+                if (!thread.getUsername().equals(clientThread.getUsername())){
+                    thread.sendMessage("You have joined the group " + name);
+                    System.out.println(thread.getUsername() + ": " + name);
+                }
             }
             groupMap.put(name, tempList);
             System.out.println("group created!");

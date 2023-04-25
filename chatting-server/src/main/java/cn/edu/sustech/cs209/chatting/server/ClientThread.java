@@ -129,7 +129,7 @@ public class ClientThread implements Runnable {
                         // list groups
                         case "ls":
 //                            server.listGroup(this);
-                            out.println(Arrays.toString(groupList.toArray()));
+                            out.println("Groups: " + Arrays.toString(groupList.toArray()));
                             break;
                         // quit
                         case "quit":

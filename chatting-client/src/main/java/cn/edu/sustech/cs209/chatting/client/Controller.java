@@ -107,15 +107,30 @@ public class Controller implements Initializable {
         chatContentList.setCellFactory(new MessageCellFactory());
         currentUsername.setText("Current User: " + username);
 
-//        onlineCountUpdater.scheduleAtFixedRate(this::updateLabels, 0, 5, TimeUnit.SECONDS);
         new Thread(() -> {
                 while ((response = in.nextLine()) != null) {
-                    if (response.startsWith("From")){
+                    if (response.startsWith("From [")){
+                        String[] pre = response.split(":");
+                        String[] temp = pre[0].split(" ");
+                        String sender = temp[2];
+                        String group = temp[1].substring(1,temp[1].length()-1);
+                        String data = pre[1].substring(1);
+                        Message message = new Message(sender, group, data);
+                        privateChatWindows.get(group).add(message);
+                    }
+                    else if (response.startsWith("From")){
                         String[] pre = response.split(":");
                         String sender = pre[0].split(" ")[1];
                         String data = pre[1].substring(1);
                         Message message = new Message(sender, username, data);
                         privateChatWindows.get(sender).add(message);
+                    } else if (response.contains("You have joined the group")) {
+                        String[] temp = response.split(" ");
+                        String group = temp[temp.length-1];
+                        privateChats_Fx.add(group);
+                        chatList.setItems(privateChats_Fx);
+                        List<Message> messageList = new ArrayList<>();
+                        privateChatWindows.put(group, messageList);
                     }
                 }
         }).start();
@@ -175,7 +190,6 @@ public class Controller implements Initializable {
         // TODO: if the current user already chatted with the selected user, just open the chat with that user
         // TODO: otherwise, create a new chat item in the left panel, the title should be the selected user's name
     }
-
     /**
      * A new dialog should contain a multi-select list, showing all user's name.
      * You can select several users that will be joined in the group chat, including yourself.
@@ -198,7 +212,6 @@ public class Controller implements Initializable {
         for (String allUser : allUsers) {
             if (!allUser.equals(username)){
                 checkBoxes.add(new CheckBox(allUser));
-
             }
         }
         Button confirmButton = new Button("OK");
@@ -207,39 +220,45 @@ public class Controller implements Initializable {
             List<String> list = new ArrayList<>();
             list.add(username);
             StringBuilder sb = new StringBuilder();
+            StringBuilder temp = new StringBuilder();
             for (CheckBox checkBox : checkBoxes) {
                 if (checkBox.isSelected()) {
                     list.add(checkBox.getText());
                 }
             }
             Collections.sort(list);
+            for (String value : list) {
+                temp.append(value).append(",");
+            }
+            temp.setLength(temp.length() - 1);
             int count = list.size();
             if (count > 3) {
                 for (int i = 0; i < list.size(); i++) {
                     if (i<3){
-                        sb.append(list.get(i)).append(", ");
+                        sb.append(list.get(i)).append(",");
                     }
                     else {
-                        sb.setLength(sb.length() - 2);
-                        sb.append("... (").append(count).append(")");
+                        sb.setLength(sb.length() - 1);
+                        sb.append("...(").append(count).append(")");
                         break;
                     }
                 }
             } else {
                 for (String s : list) {
-                    sb.append(s).append(", ");
+                    sb.append(s).append(",");
                 }
-                sb.setLength(sb.length() - 2);
-                sb.append(" (").append(count).append(")");
+                sb.setLength(sb.length() - 1);
+                sb.append("(").append(count).append(")");
             }
             String title = sb.toString();
             groupMap.put(title,list);
             if (privateChatWindows.containsKey(title)) {
-//                changePanel(title);
+                changePanel(title);
             } else {
+                String create = "create "+title+"\n" + temp;
+                out.println(create);
                 createPanel(title);
             }
-            System.out.println(title);
             stage.close();
         });
         VBox root = new VBox(10);
@@ -263,6 +282,10 @@ public class Controller implements Initializable {
 
     }
 
+    @FXML
+    public void selectGroupChat() {
+
+    }
 
     /**
      * Sends the message to the <b>currently selected</b> chat.
@@ -276,11 +299,15 @@ public class Controller implements Initializable {
         if (privateChatWindows.size() != 0 && !data.equals("")){
             inputArea.setText("");
             String recipient = chatList.getSelectionModel().getSelectedItem();
-            String command = "private "+ recipient + "\n" + data;
+            String command;
+            if (!groupMap.containsKey(recipient)){
+                command = "private " + recipient + "\n" + data;
+            } else {
+                command = "groupChat " + recipient + "\n" + data;
+            }
             out.println(command);
             Message message = new Message(username, recipient, data);
             privateChatWindows.get(recipient).add(message);
-
         }
         // TODO
     }
@@ -293,14 +320,7 @@ public class Controller implements Initializable {
         chatList.getSelectionModel().select(name);
     }
     public void changePanel(String name) {
-//        System.out.println("changePanel:"+name);
         chatList.getSelectionModel().select(name);
-//        messages.clear();
-//        for (int i = 0; i < privateChatWindows.get(name).size(); i++) {
-//            System.out.println(privateChatWindows.get(name).get(i).getData());
-//        }
-//        messages.setAll(privateChatWindows.get(name));
-//        chatContentList.setItems(messages);
     }
 
     /**
