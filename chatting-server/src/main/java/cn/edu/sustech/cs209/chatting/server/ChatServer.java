@@ -114,6 +114,9 @@ public class ChatServer {
         if (client.getGroup().contains(name)) {
             client.getGroup().remove(name);
             groupMap.get(name).remove(client);
+            if (groupMap.get(name).isEmpty()) {
+                groupMap.remove(name);
+            }
             flag = true;
         }
         return flag;

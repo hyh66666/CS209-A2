@@ -58,20 +58,9 @@ public class ClientThread implements Runnable {
                     out.println("Welcome, " + username + "!");
                 }
             }
-
-//            username = in.readLine();
-//            System.out.println(username);
-//            out.println("Welcome, " + username);
-//            if (server.userValid(username)) {
-//                System.out.println("True!!");
-//                out.println("Welcome, " + username);
-//                out.flush();
-//            } else {
-//                System.out.println("False!");
-//                out.println("Please rename!");
-//                out.flush();
-//            }
             int i = 0;
+            StringBuilder sb = new StringBuilder();
+
             label:
             while ((line = in.readLine()) != null) {
                 if (i == 0) {
@@ -133,6 +122,7 @@ public class ClientThread implements Runnable {
                             break;
                         // quit
                         case "quit":
+                            server.broadcast("I'm offline", this);
                             server.removeClient(this);
                             out.println("process over!");
                             socket.close();
@@ -147,6 +137,7 @@ public class ClientThread implements Runnable {
                     i=0;
                 }
             }
+
         } catch (IOException ex) {
             server.removeClient(this);
             try {

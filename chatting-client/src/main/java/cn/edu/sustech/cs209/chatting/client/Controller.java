@@ -117,6 +117,13 @@ public class Controller implements Initializable {
                         String data = pre[1].substring(1);
                         Message message = new Message(sender, group, data);
                         privateChatWindows.get(group).add(message);
+                        Platform.runLater(() -> {
+                            if (chatList.getSelectionModel().getSelectedItem() != null) {
+                                messages.clear();
+                                messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
+                                chatContentList.setItems(messages);
+                            }
+                        });
                     }
                     else if (response.startsWith("From")){
                         String[] pre = response.split(":");
@@ -124,11 +131,20 @@ public class Controller implements Initializable {
                         String data = pre[1].substring(1);
                         Message message = new Message(sender, username, data);
                         privateChatWindows.get(sender).add(message);
+                        Platform.runLater(() -> {
+                            if (chatList.getSelectionModel().getSelectedItem() != null) {
+                                messages.clear();
+                                messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
+                                chatContentList.setItems(messages);
+                            }
+                        });
                     } else if (response.contains("You have joined the group")) {
                         String[] temp = response.split(" ");
                         String group = temp[temp.length-1];
-                        privateChats_Fx.add(group);
-                        chatList.setItems(privateChats_Fx);
+                        Platform.runLater(() -> {
+                            privateChats_Fx.add(group);
+                            chatList.setItems(privateChats_Fx);
+                        });
                         List<Message> messageList = new ArrayList<>();
                         privateChatWindows.put(group, messageList);
                     }
@@ -139,11 +155,11 @@ public class Controller implements Initializable {
         timer.schedule(new TimerTask() {
             public void run() {
                 Platform.runLater(() -> {
-                    if (chatList.getSelectionModel().getSelectedItem()!=null){
-                        messages.clear();
-                        messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
-                        chatContentList.setItems(messages);
-                    }
+//                    if (chatList.getSelectionModel().getSelectedItem()!=null){
+//                        messages.clear();
+//                        messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
+//                        chatContentList.setItems(messages);
+//                    }
                     String command = "getUsers null" + "\n" + "null";
                     out.println(command);
                     onlineClient = response.split(",");
@@ -308,6 +324,9 @@ public class Controller implements Initializable {
             out.println(command);
             Message message = new Message(username, recipient, data);
             privateChatWindows.get(recipient).add(message);
+            messages.clear();
+            messages.setAll(privateChatWindows.get(recipient));
+            chatContentList.setItems(messages);
         }
         // TODO
     }
@@ -318,9 +337,15 @@ public class Controller implements Initializable {
         List<Message> messageList = new ArrayList<>();
         privateChatWindows.put(name, messageList);
         chatList.getSelectionModel().select(name);
+        messages.clear();
+        messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
+        chatContentList.setItems(messages);
     }
     public void changePanel(String name) {
         chatList.getSelectionModel().select(name);
+        messages.clear();
+        messages.setAll(privateChatWindows.get(chatList.getSelectionModel().getSelectedItem()));
+        chatContentList.setItems(messages);
     }
 
     /**

@@ -1,9 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,7 +20,6 @@ public class test_client1 {
                     System.out.println(response);
                 }
             }).start();
-//            init(input, out);
             String sender = input.next();
             out.println(sender);
             while (true) {
